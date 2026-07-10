@@ -211,7 +211,7 @@ def calc_edge_length_uniformity(pos, G):
 
 
 # ---------------------------------------------------------------------------
-# NSGA-II問題定義(標準的な可読性指標のみを目的関数とする)
+# NSGA-II問題定義
 # ---------------------------------------------------------------------------
 
 def pos_from_x(x, nodes):
@@ -222,7 +222,7 @@ def pos_from_x(x, nodes):
 
 class BipartiteLayoutProblem(Problem):
     """
-    3目的の多目的最適化問題(いずれもグラフ描画分野で広く使われる標準的な指標):
+    3目的の多目的最適化問題(グラフ描画における標準的な指標):
     1. crossings      : エッジ交差数(正規化)
     2. layout_quality : ストレス(理想エッジ長からのズレ)+ノード重なり回避
     3. length_uniform : エッジ長の均一性(変動係数)
@@ -272,7 +272,6 @@ def draw_layout(graph, pos, ax, title=None):
 
 # ---------------------------------------------------------------------------
 # パレート解の分析(相関・多様性・PCA)
-# 一般的な多目的最適化の結果分析手法であり、二部グラフに特有の手法ではない。
 # ---------------------------------------------------------------------------
 
 def analyze_pareto_front(F, objective_names, output_dir):
@@ -365,7 +364,7 @@ def main():
     res = minimize(problem, algorithm, termination=("n_gen", 1000), verbose=True)
     print(f"パレート解の数: {len(res.F)}")
 
-    # 3. パレート解から代表解を1つ選んで可視化(暫定: 正規化後の合計スコアが最小の解)
+    # 3. パレート解から代表解を1つ選んで可視化
     F = res.F
     F_norm = (F - F.min(axis=0)) / (F.max(axis=0) - F.min(axis=0) + 1e-9)
     best_idx = np.argmin(F_norm.sum(axis=1))
