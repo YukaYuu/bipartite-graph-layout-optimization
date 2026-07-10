@@ -1,0 +1,14 @@
+# MovieLensデータセット(再配布を避けるため管理対象外にする)
+data/
+
+# 出力画像
+outputs/
+
+# Python関連
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS関連
+.DS_Store
