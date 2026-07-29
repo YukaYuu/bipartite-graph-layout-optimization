@@ -1,4 +1,4 @@
-# 二部グラフに対する多目的最適化に基づくレイアウト生成
+#　多目的最適化による二部グラフのレイアウト最適化
 
 グラフ描画の可読性を評価する複数の指標は互いにトレードオフの関係にある。
 多目的最適化によって、二部グラフに対して複数のレイアウト候補(パレート解)を同時に生成する手法の実装。
@@ -32,7 +32,7 @@
 
 [MovieLens ml-1m](https://grouplens.org/datasets/movielens/) をダウンロードし、
 `train.txt`(各行が `ユーザーID 映画ID1 映画ID2 ...` の形式のファイル)を
-任意のディレクトリに配置してください。
+任意のディレクトリに配置
 
 ### 2. 環境構築
 
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 
 ### 3. データセットのパス指定
 
-`config.py` の `DATA_DIR` を書き換えるか、環境変数で指定します。
+`config.py` の `DATA_DIR` を書き換えるか、環境変数で指定
 
 ```bash
 export MOVIELENS_DIR=/path/to/ml-1m
@@ -55,7 +55,7 @@ python bipartite_layout_optimization.py
 ```
 
 `outputs/` ディレクトリに、最適化後のレイアウト画像や、パレート解の相関分析・
-多様性分析・PCAの図が出力されます。
+多様性分析・PCAの図が出力
 
 ## 参考
 
