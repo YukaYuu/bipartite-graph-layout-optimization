@@ -55,7 +55,7 @@ python bipartite_layout_optimization.py
 ```
 
 `outputs/` ディレクトリに、最適化後のレイアウト画像や、パレート解の相関分析・
-多様性分析・PCAの図が出力
+多様性分析・PCAの図を出力
 
 ## 参考
 
