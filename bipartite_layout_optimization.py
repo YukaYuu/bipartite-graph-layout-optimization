@@ -1,20 +1,3 @@
-"""
-二部グラフに対する多目的最適化に基づくレイアウト生成
-
-概要:
-    MovieLens データセット(ユーザー・映画の二部グラフ)からサブグラフを抽出し、NSGA-II を用いて、
-    グラフ描画分野で広く使われる標準的な可読性指標を目的関数として同時最適化するサンプル実装です。
-
-実行前の準備:
-    1. https://grouplens.org/datasets/movielens/ から ml-1m をダウンロード
-    2. 展開したディレクトリを config.py の DATA_DIR に設定
-       (または環境変数 MOVIELENS_DIR で指定)
-    3. pip install -r requirements.txt
-
-実行方法:
-    python bipartite_layout_optimization.py
-"""
-
 import os
 
 import matplotlib as mpl
@@ -36,13 +19,7 @@ except Exception:
 
 np.random.seed(config.RANDOM_SEED)
 
-
-# ---------------------------------------------------------------------------
-# データ読み込み・サブグラフ抽出
-# ---------------------------------------------------------------------------
-
 def load_movielens_graph(path):
-    """MovieLens形式のデータからユーザ-映画の二部グラフを構築する"""
     edges = []
     with open(path, "r") as f:
         for line in f:
@@ -60,16 +37,6 @@ def load_movielens_graph(path):
 def build_small_subgraph(M, n_seed_movies=5, n_users_per_movie=20,
                           n_movies_per_user=5, n_focus_users=10,
                           n_movies_per_focus_user=3):
-    """
-    次数の高い映画からグラフ探索でサブグラフを広げ、
-    さらに一番次数の高い映画周辺だけを切り出した小さいグラフを作る。
-
-    手順:
-        1. 次数の高い映画ノードを n_seed_movies 個選ぶ
-        2. 各映画に接続するユーザを辿り、そのユーザが視聴した他の映画へ探索を広げる
-        3. 得られたサブグラフの中で最も次数の高い映画を中心に、
-           検証しやすい規模までさらに絞り込む
-    """
     movie_nodes = [n for n in M.nodes() if n.startswith("m_")]
     movie_degrees = sorted(movie_nodes, key=lambda n: M.degree(n), reverse=True)
 
@@ -97,13 +64,7 @@ def build_small_subgraph(M, n_seed_movies=5, n_users_per_movie=20,
 
     return subgraph.subgraph(small_nodes).copy()
 
-
-# ---------------------------------------------------------------------------
-# posに依存しない事前計算(エッジ端点のインデックスのみ)
-# ---------------------------------------------------------------------------
-
 def precompute_edge_structure(G):
-    """座標(pos)に依存しない部分(エッジ一覧・交差判定候補ペア)を事前計算する"""
     edges = list(G.edges())
     n = len(edges)
 
@@ -126,7 +87,6 @@ def precompute_edge_structure(G):
 
 
 def segments_intersect(p1, p2, p3, p4):
-    """線分 p1-p2 と p3-p4 が実際に交差しているかを判定する(端点共有は対象外)"""
 
     def cross(o, a, b):
         return (a[:, 0] - o[:, 0]) * (b[:, 1] - o[:, 1]) - \
@@ -141,20 +101,7 @@ def segments_intersect(p1, p2, p3, p4):
     cond2 = ((d3 > 0) & (d4 < 0)) | ((d3 < 0) & (d4 > 0))
     return cond1 & cond2
 
-
-# ---------------------------------------------------------------------------
-# 標準的な可読性指標(目的関数)
-# 参考: Purchase (1997) “Which Aesthetic Has the Greatest Effect on Human
-# Understanding?” で挙げられているような、エッジ交差・エッジ長の均一性・
-# ノードの重なり回避といった一般的なグラフ描画の美的基準。
-# ---------------------------------------------------------------------------
-
 def calc_layout_quality(pos, G, ideal_edge_length=0.15):
-    """
-    基本的なレイアウト品質(可読性)を評価する:
-    - 繋がっているノード同士は適度な距離(ideal_edge_length)に近づける(ストレス)
-    - 繋がっていないノード同士は最低限の距離を保つ(重なり防止)
-    """
     nodes = list(G.nodes())
     coords = np.array([pos[n] for n in nodes])
     n = len(nodes)
@@ -177,7 +124,6 @@ def calc_layout_quality(pos, G, ideal_edge_length=0.15):
 
 
 def calc_edge_crossings(pos, pre):
-    """交差しているエッジペアの数を数え、ペア総数で正規化する"""
     pair_i, pair_j = pre["pair_i"], pre["pair_j"]
     if len(pair_i) == 0:
         return 0.0
@@ -195,7 +141,6 @@ def calc_edge_crossings(pos, pre):
 
 
 def calc_edge_length_uniformity(pos, G):
-    """全エッジ長の変動係数(std/mean)。値が小さいほどエッジ長が均一"""
     edges = list(G.edges())
     lengths = []
     for u, v in edges:
@@ -209,25 +154,12 @@ def calc_edge_length_uniformity(pos, G):
         return 0.0
     return float(lengths.std() / mean_len)
 
-
-# ---------------------------------------------------------------------------
-# NSGA-II問題定義
-# ---------------------------------------------------------------------------
-
 def pos_from_x(x, nodes):
-    """NSGA-IIの1次元配列xをノード座標の辞書に変換"""
     coords = x.reshape(-1, 2)
     return {node: coords[i] for i, node in enumerate(nodes)}
 
 
 class BipartiteLayoutProblem(Problem):
-    """
-    3目的の多目的最適化問題(グラフ描画における標準的な指標):
-    1. crossings      : エッジ交差数(正規化)
-    2. layout_quality : ストレス(理想エッジ長からのズレ)+ノード重なり回避
-    3. length_uniform : エッジ長の均一性(変動係数)
-    """
-
     def __init__(self, graph, ideal_edge_length=0.15):
         self.graph = graph
         self.nodes = list(graph.nodes())
@@ -246,12 +178,7 @@ class BipartiteLayoutProblem(Problem):
 
             raw.append([e_crossings, e_layout, e_length_uniform])
         out["F"] = np.array(raw)
-
-
-# ---------------------------------------------------------------------------
-# 初期配置・サンプリング(一般的なばねモデルレイアウトを使用)
-# ---------------------------------------------------------------------------
-
+        
 def make_sampling(pos, nodes, pop_size=50):
     """初期配置周辺にノイズを加えたNSGA-II用の初期集団を作る"""
     x0 = np.array([[pos[node][0], pos[node][1]] for node in nodes]).flatten()
@@ -269,18 +196,7 @@ def draw_layout(graph, pos, ax, title=None):
     if title:
         ax.set_title(title)
 
-
-# ---------------------------------------------------------------------------
-# パレート解の分析(相関・多様性・PCA)
-# ---------------------------------------------------------------------------
-
 def analyze_pareto_front(F, objective_names, output_dir):
-    """
-    パレート解集合Fに対して以下を行う:
-    - 目的関数間のピアソン/スピアマン相関のヒートマップ
-    - 正規化後のパレート解間距離分布
-    - 主成分分析による実質的な次元数の確認
-    """
     import seaborn as sns
     from scipy.spatial.distance import pdist
     from sklearn.decomposition import PCA
@@ -339,11 +255,6 @@ def analyze_pareto_front(F, objective_names, output_dir):
     plt.legend()
     plt.savefig(os.path.join(output_dir, "objective_pca.png"), dpi=120)
     plt.close()
-
-
-# ---------------------------------------------------------------------------
-# メイン処理
-# ---------------------------------------------------------------------------
 
 def main():
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
