@@ -13,6 +13,27 @@
 [`bipartite-layout`](https://github.com/YukaYuu/bipartite-layout) を全面公開しています。
 設計・検証プロセス(アブレーション実験・単体テスト・CI含む)はそちらで確認できます。
 
+## 結果
+
+実際のMovieLensデータ(サブグラフ抽出後、約20ノード)に対してNSGA-II(pop_size=100, 1000世代)を
+実行して得られたパレート最適レイアウトの1つ(3目的の正規化和が最小の解):
+
+<img src="docs/images/optimized_layout.png" width="55%" alt="NSGA-IIで最適化されたレイアウト">
+
+得られた100個のパレート解集合に対する分析。エッジ交差数はレイアウト品質・エッジ長均一性と
+明確な負の相関(ピアソン-0.84・-0.71)を持ち、これら3指標がトレードオフの関係にあることが
+定量的に確認できる:
+
+<p align="center">
+  <img src="docs/images/objective_correlation.png" width="49%" alt="3目的間の相関(ピアソン・スピアマン)">
+  <img src="docs/images/pareto_diversity_histogram.png" width="49%" alt="パレート解間の距離分布(多様性)">
+</p>
+
+主成分分析では、第1主成分だけで分散の84.8%を説明する(下図)── 3つの指標は完全に独立ではなく、
+本質的には1〜2次元程度の「良いレイアウトほど全指標が同時に改善する」軸が支配的であることを示唆する:
+
+<img src="docs/images/objective_pca.png" width="55%" alt="目的空間の主成分分析">
+
 ## 内容
 
 - MovieLens データセットからのユーザー・映画二部グラフの構築とサブグラフ抽出
