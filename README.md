@@ -22,6 +22,8 @@
   - ストレス(理想エッジ長からのズレ)とノードの重なり回避
   - エッジ長の均一性
 - 得られたパレート解集合に対する相関分析(ピアソン・スピアマン)、解の多様性(距離分布)分析、主成分分析(PCA)
+- (`cpp/`) NSGA-IIの初期集団を、単純な2次元ばねモデルより質の高い出発点にするための、
+  3次元力学モデル配置+最適視点探索(C++で高速化)
 
 ## ディレクトリ構成
 
@@ -35,6 +37,7 @@
 │   ├── plotting.py            # レイアウト描画
 │   └── analysis.py              # パレート解集合の相関・多様性・PCA分析
 ├── scripts/run_optimization.py    # エントリポイント(旧bipartite_layout_optimization.py)
+├── cpp/                             # 3次元力学モデル配置+最適視点探索(C++、詳細はcpp/README.md参照)
 ├── tests/                          # pytest(交差判定・指標計算・Problem評価の単体テスト)
 ├── .github/workflows/tests.yml      # CI(pytest, Python 3.11/3.12)
 ├── pyproject.toml
