@@ -9,6 +9,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+*.egg-info/
+.pytest_cache/
 
 # OS関連
 .DS_Store

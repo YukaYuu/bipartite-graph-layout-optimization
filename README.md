@@ -27,9 +27,17 @@
 
 ```
 .
-├── bipartite_layout_optimization.py  # メインスクリプト
-├── config.py                          # パス・パラメータ設定
-├── requirements.txt
+├── src/bipartite_pareto_layout/
+│   ├── config.py       # パス・パラメータ設定
+│   ├── data.py          # MovieLens読み込み・サブグラフ抽出
+│   ├── geometry.py        # 交差判定・可読性指標(エッジ交差数・レイアウト品質・エッジ長均一性)
+│   ├── problem.py           # NSGA-II用のProblem定義(pymoo)
+│   ├── plotting.py            # レイアウト描画
+│   └── analysis.py              # パレート解集合の相関・多様性・PCA分析
+├── scripts/run_optimization.py    # エントリポイント(旧bipartite_layout_optimization.py)
+├── tests/                          # pytest(交差判定・指標計算・Problem評価の単体テスト)
+├── .github/workflows/tests.yml      # CI(pytest, Python 3.11/3.12)
+├── pyproject.toml
 └── README.md
 ```
 
@@ -44,12 +52,12 @@
 ### 2. 環境構築
 
 ```bash
-pip install -r requirements.txt
+pip install -e ".[dev]"
 ```
 
 ### 3. データセットのパス指定
 
-`config.py` の `DATA_DIR` を書き換えるか、環境変数で指定
+環境変数で指定(既定は `./data/ml-1m`)
 
 ```bash
 export MOVIELENS_DIR=/path/to/ml-1m
@@ -58,11 +66,17 @@ export MOVIELENS_DIR=/path/to/ml-1m
 ### 4. 実行
 
 ```bash
-python bipartite_layout_optimization.py
+python scripts/run_optimization.py
 ```
 
 `outputs/` ディレクトリに、最適化後のレイアウト画像や、パレート解の相関分析・
 多様性分析・PCAの図を出力
+
+### テストの実行
+
+```bash
+pytest -v
+```
 
 ## 参考
 
